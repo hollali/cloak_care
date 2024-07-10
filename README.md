@@ -4,6 +4,8 @@
 
 The Patient Management System is a web application designed to help healthcare providers manage patient information efficiently. This system allows for the easy organization, access, and communication of patient data, ensuring streamlined healthcare delivery.
 
+<img src="./readme/homePic.png"/>
+
 ## Features
 
 - **Patient Registration:** Register new patients with their personal and medical 
