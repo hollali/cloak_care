@@ -36,7 +36,7 @@ information.
 1. **Clone the repository:**
 
     ```bash
-    git clone https://github.com/your-username/patient-management-system.git
+    git clone https://github.com/hollali/cloak_care.git
     cd patient-management-system
     ```
 
