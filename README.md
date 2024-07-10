@@ -41,7 +41,7 @@ Cloak Care is a Patient Management System web application designed to help healt
 
     ```bash
     git clone https://github.com/hollali/cloak_care.git
-    cd patient-management-system
+    cd cloak_care
     ```
 
 2. **Install dependencies:**
