@@ -1,12 +1,12 @@
 # Cloak Care
 
-## Overview
+## 🤖Overview
 
 Cloak Care is a Patient Management System web application designed to help healthcare providers manage patient information efficiently. This system allows for the easy organization, access, and communication of patient data, ensuring streamlined healthcare delivery.
 
 <img src="./readme/homePic.png"/>
 
-## Features
+## 🔋Features
 
 - **Patient Registration:** Register new patients with their personal and medical information.
 - **Patient Records:** View and update patient records.
@@ -14,7 +14,7 @@ Cloak Care is a Patient Management System web application designed to help healt
 - **Notifications:** Send appointment reminders and notifications via SMS.
 - **User Authentication:** Secure login and user management.
 
-## Tech Stack
+## ⚙️Tech Stack
 
 - **Next.js:** React framework for server-side rendering and generating static websites.
 - **Tailwind CSS:** Utility-first CSS framework for rapid UI development.
@@ -26,7 +26,7 @@ Cloak Care is a Patient Management System web application designed to help healt
 - **Sentry:** Application monitoring and error tracking software.
 - **React Hook Form:** Performant, flexible, and extensible forms with easy-to-use validation.
 
-## Installation
+## 👨🏾‍💻Installation
 
 ### Prerequisites
 
@@ -75,7 +75,7 @@ Cloak Care is a Patient Management System web application designed to help healt
 
     Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## Usage
+## 🖥️Usage📱
 
 ### Patient Registration
 
@@ -100,7 +100,7 @@ Cloak Care is a Patient Management System web application designed to help healt
 1. The system automatically sends SMS reminders for upcoming appointments.
 2. Ensure the Twilio account and phone number are correctly configured in the environment variables.
 
-## Deployment
+## 🚀Deployment🚀
 
 ### Vercel
 
