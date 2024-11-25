@@ -3,7 +3,7 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { cn } from '@/lib/utils'
 import { ThemeProvider } from "@/components/ui/theme-provider"
-import { RiFontSans } from "react-icons/ri";
+//import { RiFontSans } from "react-icons/ri";
 
 const inter = Plus_Jakarta_Sans({
   subsets: ["latin"],
