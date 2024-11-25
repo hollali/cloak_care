@@ -74,7 +74,7 @@ const PatientForm = () => {
 					control={form.control}
 					name="email"
 					label="Email"
-					placeholder="kelvinYorke@gmail.com"
+					placeholder="JohnYorke@gmail.com"
 					iconSrc="/assets/icons/email.svg"
 					iconAlt="email"
 				/>
@@ -83,7 +83,7 @@ const PatientForm = () => {
 					control={form.control}
 					name="phone"
 					label="Phone number"
-					placeholder="0505306932"
+					placeholder="0305306932"
 				/>
 				<SubmitButton isLoading={isLoading}>Get Started</SubmitButton>
 			</form>
