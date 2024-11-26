@@ -39,41 +39,41 @@ Cloak Care is a Patient Management System web application designed to help healt
 
 1. **Clone the repository:**
 
-    ```bash
-    git clone https://github.com/hollali/cloak_care.git
-    cd cloak_care
-    ```
+   ```bash
+   git clone https://github.com/hollali/cloak_care.git
+   cd cloak_care
+   ```
 
 2. **Install dependencies:**
 
-    ```bash
-    npm install
-    # or
-    yarn install
-    ```
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
 3. **Configure environment variables:**
 
-    Create a `.env.local` file in the root of the project and add the following:
+   Create a `.env.local` file in the root of the project and add the following:
 
-    ```env
-    NEXT_PUBLIC_APPWRITE_ENDPOINT=https://[YOUR_APPWRITE_ENDPOINT]
-    NEXT_PUBLIC_APPWRITE_PROJECT_ID=[YOUR_APPWRITE_PROJECT_ID]
-    NEXT_PUBLIC_TWILIO_ACCOUNT_SID=[YOUR_TWILIO_ACCOUNT_SID]
-    NEXT_PUBLIC_TWILIO_AUTH_TOKEN=[YOUR_TWILIO_AUTH_TOKEN]
-    NEXT_PUBLIC_TWILIO_PHONE_NUMBER=[YOUR_TWILIO_PHONE_NUMBER]
-    NEXT_PUBLIC_SENTRY_DSN=[YOUR_SENTRY_DSN]
-    ```
+   ```env
+   NEXT_PUBLIC_APPWRITE_ENDPOINT=https://[YOUR_APPWRITE_ENDPOINT]
+   NEXT_PUBLIC_APPWRITE_PROJECT_ID=[YOUR_APPWRITE_PROJECT_ID]
+   NEXT_PUBLIC_TWILIO_ACCOUNT_SID=[YOUR_TWILIO_ACCOUNT_SID]
+   NEXT_PUBLIC_TWILIO_AUTH_TOKEN=[YOUR_TWILIO_AUTH_TOKEN]
+   NEXT_PUBLIC_TWILIO_PHONE_NUMBER=[YOUR_TWILIO_PHONE_NUMBER]
+   NEXT_PUBLIC_SENTRY_DSN=[YOUR_SENTRY_DSN]
+   ```
 
 4. **Run the development server:**
 
-    ```bash
-    npm run dev
-    # or
-    yarn dev
-    ```
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
 
-    Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+   Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 ## 🖥️Usage📱
 
@@ -112,19 +112,19 @@ Cloak Care is a Patient Management System web application designed to help healt
 
 1. Build the application:
 
-    ```bash
-    npm run build
-    # or
-    yarn build
-    ```
+   ```bash
+   npm run build
+   # or
+   yarn build
+   ```
 
 2. Start the server:
 
-    ```bash
-    npm start
-    # or
-    yarn start
-    ```
+   ```bash
+   npm start
+   # or
+   yarn start
+   ```
 
 3. Access the application at [http://localhost:3000](http://localhost:3000).
 
