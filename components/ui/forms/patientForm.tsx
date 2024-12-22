@@ -60,7 +60,6 @@ const PatientForm = () => {
 					<h1 className="header"> Hi there 👋</h1>
 					<p className="text-dark-700">Schedule your first appointment</p>
 				</section>
-
 				<CustomFormField
 					fieldType={FormFieldType.INPUT}
 					control={form.control}
