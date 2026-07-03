@@ -1,49 +1,45 @@
 # Cloak Care
 
-## 🤖Overview
+A healthcare patient management system designed to streamline patient registration, appointment scheduling, and medical records management for healthcare providers.
 
-Cloak Care is a Patient Management System web application designed to help healthcare providers manage patient information efficiently. This system allows for the easy organization, access, and communication of patient data, ensuring streamlined healthcare delivery.
+<div>
+  <img src="https://img.shields.io/badge/-Next_JS-black?style=for-the-badge&logoColor=white&logo=nextdotjs&color=000000" alt="nextdotjs" />
+  <img src="https://img.shields.io/badge/-TypeScript-black?style=for-the-badge&logoColor=white&logo=typescript&color=3178C6" alt="typescript" />
+  <img src="https://img.shields.io/badge/-Tailwind_CSS-black?style=for-the-badge&logoColor=white&logo=tailwindcss&color=06B6D4" alt="tailwindcss" />
+  <img src="https://img.shields.io/badge/-Neon_DB-black?style=for-the-badge&logoColor=white&logo=neon&color=00E599" alt="neondb" />
+  <img src="https://img.shields.io/badge/-ShadCN-black?style=for-the-badge&logoColor=white&logo=shadcnui&color=000000" alt="shadcn" />
+</div>
 
-<img src="./readme/homePic.png"/>
+## Features
 
- <div>
-    <img src="https://img.shields.io/badge/-Next_JS-black?style=for-the-badge&logoColor=white&logo=nextdotjs&color=000000" alt="nextdotjs" />
-    <img src="https://img.shields.io/badge/-TypeScript-black?style=for-the-badge&logoColor=white&logo=typescript&color=3178C6" alt="typescript" />
-    <img src="https://img.shields.io/badge/-Tailwind_CSS-black?style=for-the-badge&logoColor=white&logo=tailwindcss&color=06B6D4" alt="tailwindcss" />
-    <img src="https://img.shields.io/badge/-Neon_DB-black?style=for-the-badge&logoColor=white&logo=neon&color=00E599" alt="neondb" />
-    <img src="https://img.shields.io/badge/-Twilio-black?style=for-the-badge&logoColor=white&logo=twilio&color=F22F46" alt="twilio" />
-    <img src="https://img.shields.io/badge/-ShadCN-black?style=for-the-badge&logoColor=white&logo=shadcnui&color=000000" alt="shadcn" />
-  </div>
-
-## 🔋Features
-
-- **Patient Registration:** Register new patients with their personal and medical information.
-- **Patient Records:** View and update patient records.
-- **Appointment Scheduling:** Schedule and manage patient appointments.
-- **Admin Dashboard:** Manage appointments with schedule/cancel actions.
-- **SMS Notifications:** Send appointment reminders and notifications via Twilio.
+- **OTP Email Sign-In:** Passwordless authentication via email verification codes.
+- **Patient Registration:** Register patients with personal and medical information, including document upload.
+- **Appointment Booking:** Schedule appointments with doctors, choose date/time, and provide reason.
+- **Patient Dashboard:** View upcoming appointments, appointment history, and primary physician info.
+- **Admin Dashboard:** Manage all appointments with schedule/cancel actions, search and filter through appointments.
+- **Email Notifications:** Appointment confirmation and cancellation emails via SMTP.
+- **Appointment Reminders:** Automated reminder emails for upcoming appointments (24h before).
 - **Admin Passkey Protection:** Secure admin dashboard access.
 
-## ⚙️Tech Stack
+## Tech Stack
 
-- **Next.js 14:** React framework with App Router and Server Actions.
-- **TypeScript:** Typed JavaScript for better code quality.
-- **Tailwind CSS:** Utility-first CSS framework for rapid UI development.
-- **Neon DB:** Serverless PostgreSQL database.
-- **Twilio:** Cloud communications platform for sending SMS.
-- **ShadCN:** Component library built on Radix UI primitives.
-- **Zod:** TypeScript-first schema declaration and validation.
-- **React Hook Form:** Performant, flexible forms with easy validation.
-- **TanStack Table:** Headless UI for building data tables.
+- **Next.js 14** — App Router, Server Actions, Middleware
+- **TypeScript**
+- **Tailwind CSS** + **ShadCN UI**
+- **Neon DB** — Serverless PostgreSQL
+- **Nodemailer** — SMTP email delivery
+- **Zod** — Schema validation
+- **React Hook Form**
+- **TanStack Table** — Data tables with search/filter/pagination
 
-## 👨🏾‍💻Installation
+## Installation
 
 ### Prerequisites
 
-- Node.js (v18.x or later)
-- npm or Yarn
+- Node.js v18+
+- npm or yarn
 - [Neon](https://neon.tech) account (free tier works)
-- Twilio account (optional, for SMS)
+- Gmail account with App Password (for SMTP email)
 
 ### Steps
 
@@ -67,64 +63,60 @@ Cloak Care is a Patient Management System web application designed to help healt
 
 4. **Configure environment variables:**
 
-   Create a `.env.local` file in the root of the project:
+   Create a `.env.local` file:
 
    ```env
    # NEON DB
    DATABASE_URL="postgresql://user:pass@ep-xxx.region.aws.neon.tech/dbname?sslmode=require"
 
-   # TWILIO (optional)
-   TWILIO_ACCOUNT_SID=
-   TWILIO_AUTH_TOKEN=
-   TWILIO_PHONE_NUMBER=
+   # SMTP (for email)
+   SMTP_HOST=smtp.gmail.com
+   SMTP_PORT=587
+   SMTP_SECURE=false
+   SMTP_USER=your-email@gmail.com
+   SMTP_PASS=your-app-password
+   EMAIL_FROM=your-email@gmail.com
 
    # ADMIN
    NEXT_PUBLIC_ADMIN_PASSKEY=111111
    ```
 
-5. **Initialize the database tables:**
+   To get a Gmail App Password:
+   1. Enable 2FA at [myaccount.google.com/security](https://myaccount.google.com/security)
+   2. Generate an App Password at [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords)
+   3. Copy the 16-character password into `SMTP_PASS`
 
-   ```bash
-   npx tsx -e "
-   import { neon } from '@neondatabase/serverless';
-   const sql = neon(process.env.DATABASE_URL);
-   await sql\`CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, name TEXT NOT NULL, email TEXT NOT NULL UNIQUE, phone TEXT NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)\`;
-   await sql\`CREATE TABLE IF NOT EXISTS patients (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id), name TEXT NOT NULL, email TEXT NOT NULL, phone TEXT NOT NULL, birth_date DATE NOT NULL, gender TEXT NOT NULL, address TEXT NOT NULL, occupation TEXT NOT NULL, emergency_contact_name TEXT NOT NULL, emergency_contact_number TEXT NOT NULL, primary_physician TEXT NOT NULL, insurance_provider TEXT NOT NULL, insurance_policy_number TEXT NOT NULL, allergies TEXT, current_medication TEXT, family_medical_history TEXT, past_medical_history TEXT, identification_type TEXT, identification_number TEXT, identification_document_url TEXT, treatment_consent BOOLEAN DEFAULT FALSE, disclosure_consent BOOLEAN DEFAULT FALSE, privacy_consent BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)\`;
-   await sql\`CREATE TABLE IF NOT EXISTS appointments (id TEXT PRIMARY KEY, patient_id TEXT NOT NULL REFERENCES patients(id), user_id TEXT NOT NULL, primary_physician TEXT NOT NULL, reason TEXT NOT NULL, schedule TIMESTAMP NOT NULL, status TEXT DEFAULT 'pending', note TEXT, cancellation_reason TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)\`;
-   console.log('Tables created!');
-   "
-   ```
-
-6. **Run the development server:**
+5. **Run the development server:**
 
    ```bash
    npm run dev
    ```
 
-   Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+   Open [http://localhost:3000](http://localhost:3000). Database tables are created automatically on first request.
 
-## 🖥️Usage
+## Usage
 
-### Patient Registration
+### Patient Flow
 
 1. Visit the home page and enter your name, email, and phone.
-2. Complete the detailed registration form with medical information.
-3. Upload identification documents (optional).
+2. Check your email for the 6-digit verification code.
+3. Complete the registration form with medical information.
+4. Book an appointment with a doctor.
+5. View your appointment history on the dashboard.
 
-### Booking Appointments
+### Admin Flow
 
-1. After registration, select a doctor and choose a date/time.
-2. Provide the reason for the appointment.
-3. View the confirmation on the success page.
-
-### Admin Dashboard
-
-1. Click "Admin" on the home page.
+1. Click **Admin** on the home page.
 2. Enter the admin passkey (default: `111111`).
-3. View appointment statistics and manage bookings.
+3. View appointment statistics and manage all bookings.
 4. Schedule or cancel appointments as needed.
+5. Use the search bar to filter appointments by patient name.
 
-## 🚀Deployment
+### Appointment Reminders
+
+The `/api/reminders` endpoint checks for appointments within the next 24 hours and sends reminder emails. Set up a cron job (e.g., cron-job.org) to hit this endpoint periodically.
+
+## Deployment
 
 ### Vercel
 
@@ -137,8 +129,8 @@ Cloak Care is a Patient Management System web application designed to help healt
 
 1. Fork the repository.
 2. Create a new branch (`git checkout -b feature/your-feature-name`).
-3. Commit your changes (`git commit -m 'Add some feature'`).
-4. Push to the branch (`git push origin feature/your-feature-name`).
+3. Commit your changes.
+4. Push to the branch.
 5. Open a pull request.
 
 ## License

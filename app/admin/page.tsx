@@ -6,26 +6,14 @@ import { StatCard } from "@/components/StatCard";
 import { columns } from "@/components/table/columns";
 import { DataTable } from "@/components/table/DataTable";
 import { LogoutButton } from "@/components/LogoutButton";
-import { AdminCharts } from "@/components/AdminCharts";
 import { getRecentAppointmentList } from "@/lib/actions/appointment.actions";
-import { getAdminStats } from "@/lib/actions/dashboard.actions";
 import { checkAdminSession } from "@/lib/actions/admin.actions";
-import { getDoctors } from "@/lib/actions/doctors.actions";
 
 const AdminPage = async () => {
   const isAdmin = checkAdminSession();
   if (!isAdmin) redirect("/");
 
-  const [appointments, stats, doctors] = await Promise.all([
-    getRecentAppointmentList(),
-    getAdminStats(),
-    getDoctors(),
-  ]);
-
-  const totalAppointments =
-    (appointments?.scheduledCount ?? 0) +
-    (appointments?.pendingCount ?? 0) +
-    (appointments?.cancelledCount ?? 0);
+  const appointments = await getRecentAppointmentList();
 
   return (
     <div className="mx-auto flex max-w-7xl flex-col space-y-14">
@@ -51,11 +39,7 @@ const AdminPage = async () => {
           </p>
         </section>
 
-        <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="rounded-md border border-dark-500 bg-dark-400 p-5">
-            <p className="text-14-medium text-dark-600">Total Patients</p>
-            <p className="text-3xl font-bold mt-1">{stats?.totalPatients ?? 0}</p>
-          </div>
+        <section className="admin-stat">
           <StatCard
             type="appointments"
             count={appointments?.scheduledCount ?? 0}
@@ -75,13 +59,6 @@ const AdminPage = async () => {
             icon="/assets/icons/cancelled.svg"
           />
         </section>
-
-        {stats && (
-          <AdminCharts
-            statusBreakdown={stats.statusBreakdown}
-            trend={stats.trend}
-          />
-        )}
 
         <section className="w-full">
           <h2 className="text-xl font-semibold mb-4">All Appointments</h2>
