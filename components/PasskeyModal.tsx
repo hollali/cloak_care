@@ -34,9 +34,10 @@ export const PasskeyModal = () => {
 
   useEffect(() => {
     const accessKey = encryptedKey && decryptKey(encryptedKey);
+    const adminPasskey = process.env.NEXT_PUBLIC_ADMIN_PASSKEY;
 
-    if (path)
-      if (accessKey === process.env.NEXT_PUBLIC_ADMIN_PASSKEY!.toString()) {
+    if (path && adminPasskey)
+      if (accessKey === adminPasskey) {
         setOpen(false);
         router.push("/admin");
       } else {
