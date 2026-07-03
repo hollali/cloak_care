@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import RegisterForm from "@/components/forms/RegisterForm";
@@ -23,9 +24,28 @@ const Register = async ({ params: { userId } }: SearchParamProps) => {
   const doctors = await getDoctors();
 
   return (
-    <div className="flex h-screen max-h-screen">
+    <div className="flex min-h-screen flex-col md:flex-row">
       <section className="remove-scrollbar container">
         <div className="sub-container max-w-[860px] flex-1 flex-col py-10">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-dark-700 hover:text-white mb-8"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m15 18-6-6 6-6" />
+            </svg>
+            Back
+          </Link>
           <Image
             src="/assets/icons/logo-full.svg"
             height={1000}

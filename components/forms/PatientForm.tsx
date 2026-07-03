@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import {
@@ -59,8 +60,10 @@ export const PatientForm = () => {
         const otpResult = await sendOTP(values.email);
         if (!otpResult.success) {
           setEmailError(otpResult.error || "Failed to send verification code");
+          toast.error(otpResult.error || "Failed to send code");
           return;
         }
+        toast.success("Verification code sent to your email");
         setStep("otp");
       }
     } catch (error) {
@@ -75,9 +78,12 @@ export const PatientForm = () => {
 
     const result = await verifyOTP(userEmail, otp);
     if (result.success) {
+      toast.success("Verified successfully");
       router.push(`/patients/${userId}/register`);
     } else {
-      setOtpError(result.error || "Verification failed");
+      const msg = result.error || "Verification failed";
+      setOtpError(msg);
+      toast.error(msg);
     }
 
     setIsLoading(false);
@@ -86,6 +92,26 @@ export const PatientForm = () => {
   if (step === "otp") {
     return (
       <div className="flex-1 space-y-6">
+        <button
+          type="button"
+          onClick={() => { setStep("form"); setOtpError(""); }}
+          className="flex items-center gap-2 text-dark-700 hover:text-white mb-4"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="m15 18-6-6 6-6" />
+          </svg>
+          Back
+        </button>
         <section className="mb-12 space-y-4">
           <h1 className="header">Check your email</h1>
           <p className="text-dark-700">

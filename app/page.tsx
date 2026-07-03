@@ -7,7 +7,7 @@ import { PasskeyModal } from "@/components/PasskeyModal";
 const Home = () => {
 
   return (
-    <div className="flex h-screen max-h-screen">
+    <div className="flex min-h-screen flex-col md:flex-row">
       <PasskeyModal />
 
       <section className="remove-scrollbar container my-auto">

@@ -28,7 +28,7 @@ const RequestSuccess = async ({
   );
 
   return (
-    <div className=" flex h-screen max-h-screen px-[5%]">
+    <div className="flex min-h-screen flex-col px-[5%]">
       <div className="success-img">
         <Link href="/">
           <Image
@@ -80,8 +80,14 @@ const RequestSuccess = async ({
         )}
 
         <Button variant="outline" className="shad-primary-btn" asChild>
+          <Link href={`/patients/${userId}/dashboard`}>
+            Back to Dashboard
+          </Link>
+        </Button>
+
+        <Button variant="outline" className="shad-primary-btn" asChild>
           <Link href={`/patients/${userId}/new-appointment`}>
-            New Appointment
+            Book Another
           </Link>
         </Button>
 

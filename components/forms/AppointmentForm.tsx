@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { SelectItem } from "@/components/ui/select";
@@ -95,6 +96,7 @@ export const AppointmentForm = ({
 
         if (newAppointment) {
           form.reset();
+          toast.success("Appointment request submitted");
           router.push(
             `/patients/${userId}/new-appointment/success?appointmentId=${newAppointment.$id}`
           );
@@ -115,6 +117,11 @@ export const AppointmentForm = ({
         const updatedAppointment = await updateAppointment(appointmentToUpdate);
 
         if (updatedAppointment) {
+          toast.success(
+            type === "schedule"
+              ? "Appointment confirmed"
+              : "Appointment cancelled"
+          );
           setOpen && setOpen(false);
           form.reset();
         }

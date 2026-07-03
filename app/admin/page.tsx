@@ -6,7 +6,9 @@ import { StatCard } from "@/components/StatCard";
 import { columns } from "@/components/table/columns";
 import { DataTable } from "@/components/table/DataTable";
 import { LogoutButton } from "@/components/LogoutButton";
+import { AdminCharts } from "@/components/AdminCharts";
 import { getRecentAppointmentList } from "@/lib/actions/appointment.actions";
+import { getAdminStats } from "@/lib/actions/dashboard.actions";
 import { checkAdminSession } from "@/lib/actions/admin.actions";
 import { getDoctors } from "@/lib/actions/doctors.actions";
 
@@ -14,8 +16,16 @@ const AdminPage = async () => {
   const isAdmin = checkAdminSession();
   if (!isAdmin) redirect("/");
 
-  const appointments = await getRecentAppointmentList();
-  const doctors = await getDoctors();
+  const [appointments, stats, doctors] = await Promise.all([
+    getRecentAppointmentList(),
+    getAdminStats(),
+    getDoctors(),
+  ]);
+
+  const totalAppointments =
+    (appointments?.scheduledCount ?? 0) +
+    (appointments?.pendingCount ?? 0) +
+    (appointments?.cancelledCount ?? 0);
 
   return (
     <div className="mx-auto flex max-w-7xl flex-col space-y-14">
@@ -29,7 +39,6 @@ const AdminPage = async () => {
             className="h-8 w-fit"
           />
         </Link>
-
         <p className="text-16-semibold">Admin Dashboard</p>
         <LogoutButton />
       </header>
@@ -42,28 +51,46 @@ const AdminPage = async () => {
           </p>
         </section>
 
-        <section className="admin-stat">
+        <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="rounded-md border border-dark-500 bg-dark-400 p-5">
+            <p className="text-14-medium text-dark-600">Total Patients</p>
+            <p className="text-3xl font-bold mt-1">{stats?.totalPatients ?? 0}</p>
+          </div>
           <StatCard
             type="appointments"
             count={appointments?.scheduledCount ?? 0}
             label="Scheduled appointments"
-            icon={"/assets/icons/appointments.svg"}
+            icon="/assets/icons/appointments.svg"
           />
           <StatCard
             type="pending"
             count={appointments?.pendingCount ?? 0}
             label="Pending appointments"
-            icon={"/assets/icons/pending.svg"}
+            icon="/assets/icons/pending.svg"
           />
           <StatCard
             type="cancelled"
             count={appointments?.cancelledCount ?? 0}
             label="Cancelled appointments"
-            icon={"/assets/icons/cancelled.svg"}
+            icon="/assets/icons/cancelled.svg"
           />
         </section>
 
-        <DataTable columns={columns} data={appointments?.documents ?? []} />
+        {stats && (
+          <AdminCharts
+            statusBreakdown={stats.statusBreakdown}
+            trend={stats.trend}
+          />
+        )}
+
+        <section className="w-full">
+          <h2 className="text-xl font-semibold mb-4">All Appointments</h2>
+          <DataTable
+            columns={columns}
+            data={appointments?.documents ?? []}
+            searchKey="patient"
+          />
+        </section>
       </main>
     </div>
   );
