@@ -10,38 +10,40 @@ Cloak Care is a Patient Management System web application designed to help healt
     <img src="https://img.shields.io/badge/-Next_JS-black?style=for-the-badge&logoColor=white&logo=nextdotjs&color=000000" alt="nextdotjs" />
     <img src="https://img.shields.io/badge/-TypeScript-black?style=for-the-badge&logoColor=white&logo=typescript&color=3178C6" alt="typescript" />
     <img src="https://img.shields.io/badge/-Tailwind_CSS-black?style=for-the-badge&logoColor=white&logo=tailwindcss&color=06B6D4" alt="tailwindcss" />
-    <img src="https://img.shields.io/badge/-Appwrite-black?style=for-the-badge&logoColor=white&logo=appwrite&color=FD366E" alt="appwrite" />
+    <img src="https://img.shields.io/badge/-Neon_DB-black?style=for-the-badge&logoColor=white&logo=neon&color=00E599" alt="neondb" />
+    <img src="https://img.shields.io/badge/-Twilio-black?style=for-the-badge&logoColor=white&logo=twilio&color=F22F46" alt="twilio" />
+    <img src="https://img.shields.io/badge/-ShadCN-black?style=for-the-badge&logoColor=white&logo=shadcnui&color=000000" alt="shadcn" />
   </div>
-
 
 ## 🔋Features
 
 - **Patient Registration:** Register new patients with their personal and medical information.
 - **Patient Records:** View and update patient records.
 - **Appointment Scheduling:** Schedule and manage patient appointments.
-- **Notifications:** Send appointment reminders and notifications via SMS.
-- **User Authentication:** Secure login and user management.
+- **Admin Dashboard:** Manage appointments with schedule/cancel actions.
+- **SMS Notifications:** Send appointment reminders and notifications via Twilio.
+- **Admin Passkey Protection:** Secure admin dashboard access.
 
 ## ⚙️Tech Stack
 
-- **Next.js:** React framework for server-side rendering and generating static websites.
+- **Next.js 14:** React framework with App Router and Server Actions.
+- **TypeScript:** Typed JavaScript for better code quality.
 - **Tailwind CSS:** Utility-first CSS framework for rapid UI development.
-- **Appwrite:** Backend server for web, mobile, and flutter developers.
+- **Neon DB:** Serverless PostgreSQL database.
 - **Twilio:** Cloud communications platform for sending SMS.
-- **TypeScript:** Typed JavaScript for better code quality and developer experience.
-- **Shadcn:** Component library for building accessible and customizable UI.
-- **Zod:** TypeScript-first schema declaration and validation library.
-- **Sentry:** Application monitoring and error tracking software.
-- **React Hook Form:** Performant, flexible, and extensible forms with easy-to-use validation.
+- **ShadCN:** Component library built on Radix UI primitives.
+- **Zod:** TypeScript-first schema declaration and validation.
+- **React Hook Form:** Performant, flexible forms with easy validation.
+- **TanStack Table:** Headless UI for building data tables.
 
 ## 👨🏾‍💻Installation
 
 ### Prerequisites
 
-- Node.js (v14.x or later)
-- npm (v6.x or later) or Yarn (v1.x or later)
-- Appwrite server (setup and running)
-- Twilio account with a verified phone number
+- Node.js (v18.x or later)
+- npm or Yarn
+- [Neon](https://neon.tech) account (free tier works)
+- Twilio account (optional, for SMS)
 
 ### Steps
 
@@ -56,85 +58,80 @@ Cloak Care is a Patient Management System web application designed to help healt
 
    ```bash
    npm install
-   # or
-   yarn install
    ```
 
-3. **Configure environment variables:**
+3. **Set up Neon Database:**
 
-   Create a `.env.local` file in the root of the project and add the following:
+   - Create a project at [neon.tech](https://neon.tech)
+   - Copy your connection string
+
+4. **Configure environment variables:**
+
+   Create a `.env.local` file in the root of the project:
 
    ```env
-   NEXT_PUBLIC_APPWRITE_ENDPOINT=https://[YOUR_APPWRITE_ENDPOINT]
-   NEXT_PUBLIC_APPWRITE_PROJECT_ID=[YOUR_APPWRITE_PROJECT_ID]
-   NEXT_PUBLIC_TWILIO_ACCOUNT_SID=[YOUR_TWILIO_ACCOUNT_SID]
-   NEXT_PUBLIC_TWILIO_AUTH_TOKEN=[YOUR_TWILIO_AUTH_TOKEN]
-   NEXT_PUBLIC_TWILIO_PHONE_NUMBER=[YOUR_TWILIO_PHONE_NUMBER]
-   NEXT_PUBLIC_SENTRY_DSN=[YOUR_SENTRY_DSN]
+   # NEON DB
+   DATABASE_URL="postgresql://user:pass@ep-xxx.region.aws.neon.tech/dbname?sslmode=require"
+
+   # TWILIO (optional)
+   TWILIO_ACCOUNT_SID=
+   TWILIO_AUTH_TOKEN=
+   TWILIO_PHONE_NUMBER=
+
+   # ADMIN
+   NEXT_PUBLIC_ADMIN_PASSKEY=111111
    ```
 
-4. **Run the development server:**
+5. **Initialize the database tables:**
+
+   ```bash
+   npx tsx -e "
+   import { neon } from '@neondatabase/serverless';
+   const sql = neon(process.env.DATABASE_URL);
+   await sql\`CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, name TEXT NOT NULL, email TEXT NOT NULL UNIQUE, phone TEXT NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)\`;
+   await sql\`CREATE TABLE IF NOT EXISTS patients (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id), name TEXT NOT NULL, email TEXT NOT NULL, phone TEXT NOT NULL, birth_date DATE NOT NULL, gender TEXT NOT NULL, address TEXT NOT NULL, occupation TEXT NOT NULL, emergency_contact_name TEXT NOT NULL, emergency_contact_number TEXT NOT NULL, primary_physician TEXT NOT NULL, insurance_provider TEXT NOT NULL, insurance_policy_number TEXT NOT NULL, allergies TEXT, current_medication TEXT, family_medical_history TEXT, past_medical_history TEXT, identification_type TEXT, identification_number TEXT, identification_document_url TEXT, treatment_consent BOOLEAN DEFAULT FALSE, disclosure_consent BOOLEAN DEFAULT FALSE, privacy_consent BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)\`;
+   await sql\`CREATE TABLE IF NOT EXISTS appointments (id TEXT PRIMARY KEY, patient_id TEXT NOT NULL REFERENCES patients(id), user_id TEXT NOT NULL, primary_physician TEXT NOT NULL, reason TEXT NOT NULL, schedule TIMESTAMP NOT NULL, status TEXT DEFAULT 'pending', note TEXT, cancellation_reason TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)\`;
+   console.log('Tables created!');
+   "
+   ```
+
+6. **Run the development server:**
 
    ```bash
    npm run dev
-   # or
-   yarn dev
    ```
 
    Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## 🖥️Usage📱
+## 🖥️Usage
 
 ### Patient Registration
 
-1. Navigate to the registration page.
-2. Fill out the patient's personal and medical information using the form.
-3. Submit the form to add the patient to the system.
+1. Visit the home page and enter your name, email, and phone.
+2. Complete the detailed registration form with medical information.
+3. Upload identification documents (optional).
 
-### Viewing and Updating Patient Records
+### Booking Appointments
 
-1. Navigate to the patient records page.
-2. Select a patient to view their details.
-3. Edit the information as needed and save the changes.
+1. After registration, select a doctor and choose a date/time.
+2. Provide the reason for the appointment.
+3. View the confirmation on the success page.
 
-### Appointment Scheduling
+### Admin Dashboard
 
-1. Navigate to the appointment scheduling page.
-2. Select a patient and choose a date and time for the appointment.
-3. Submit the form to schedule the appointment.
+1. Click "Admin" on the home page.
+2. Enter the admin passkey (default: `111111`).
+3. View appointment statistics and manage bookings.
+4. Schedule or cancel appointments as needed.
 
-### Sending Notifications
-
-1. The system automatically sends SMS reminders for upcoming appointments.
-2. Ensure the Twilio account and phone number are correctly configured in the environment variables.
-
-## 🚀Deployment🚀
+## 🚀Deployment
 
 ### Vercel
 
-1. Connect your GitHub repository to Vercel.
-2. Set up the environment variables in the Vercel dashboard.
-3. Deploy the application directly from Vercel.
-
-### Manual Deployment
-
-1. Build the application:
-
-   ```bash
-   npm run build
-   # or
-   yarn build
-   ```
-
-2. Start the server:
-
-   ```bash
-   npm start
-   # or
-   yarn start
-   ```
-
-3. Access the application at [http://localhost:3000](http://localhost:3000).
+1. Push your code to GitHub.
+2. Import the repository in Vercel.
+3. Add the environment variables in the Vercel dashboard.
+4. Deploy.
 
 ## Contributing
 
@@ -146,18 +143,4 @@ Cloak Care is a Patient Management System web application designed to help healt
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## Acknowledgements
-
-- [Next.js](https://nextjs.org/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [Appwrite](https://appwrite.io/)
-- [Twilio](https://www.twilio.com/)
-- [TypeScript](https://www.typescriptlang.org/)
-- [Shadcn](https://shadcn.dev/)
-- [Zod](https://zod.dev/)
-- [Sentry](https://sentry.io/)
-- [React Hook Form](https://react-hook-form.com/)
-
----
+MIT
