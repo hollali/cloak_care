@@ -2,13 +2,25 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 
 import RegisterForm from "@/components/forms/RegisterForm";
-import { getPatient, getUser } from "@/lib/actions/patient.actions";
+import { getPatient, getUser, getSession } from "@/lib/actions/patient.actions";
+import { getDoctors } from "@/lib/actions/doctors.actions";
+import { getSessionToken } from "@/lib/session";
 
 const Register = async ({ params: { userId } }: SearchParamProps) => {
-  const user = await getUser(userId);
-  const patient = await getPatient(userId);
+  const sessionToken = getSessionToken();
+  if (!sessionToken) redirect("/");
 
+  const session = await getSession(sessionToken);
+  if (!session) redirect("/");
+
+  const user = await getUser(userId);
+  if (!user) redirect("/");
+  if (user.email !== session.email) redirect("/");
+
+  const patient = await getPatient(userId);
   if (patient) redirect(`/patients/${userId}/new-appointment`);
+
+  const doctors = await getDoctors();
 
   return (
     <div className="flex h-screen max-h-screen">
@@ -22,7 +34,7 @@ const Register = async ({ params: { userId } }: SearchParamProps) => {
             className="mb-12 h-10 w-fit"
           />
 
-          <RegisterForm user={user} />
+          <RegisterForm user={user} doctors={doctors} />
 
           <p className="copyright py-12">© {new Date().getFullYear()} Cloak Care</p>
         </div>

@@ -18,7 +18,7 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { decryptKey, encryptKey } from "@/lib/utils";
+import { verifyAdminPasskey } from "@/lib/actions/admin.actions";
 
 export const PasskeyModal = () => {
   const router = useRouter();
@@ -30,45 +30,32 @@ export const PasskeyModal = () => {
 
   const isAdmin = searchParams?.get("admin") === "true";
 
-  const encryptedKey =
-    typeof window !== "undefined"
-      ? window.localStorage.getItem("accessKey")
-      : null;
-
   useEffect(() => {
     if (!isAdmin) {
       setOpen(false);
       return;
     }
 
-    const accessKey = encryptedKey && decryptKey(encryptedKey);
-    const adminPasskey = process.env.NEXT_PUBLIC_ADMIN_PASSKEY;
-
-    if (path && adminPasskey)
-      if (accessKey === adminPasskey) {
-        setOpen(false);
-        router.push("/admin");
-      } else {
-        setOpen(true);
-      }
-  }, [encryptedKey, isAdmin, path, router]);
+    setOpen(true);
+  }, [isAdmin]);
 
   const closeModal = () => {
     setOpen(false);
     router.push("/");
   };
 
-  const validatePasskey = (
+  const validatePasskey = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     e.preventDefault();
+    setError("");
 
-    if (passkey === process.env.NEXT_PUBLIC_ADMIN_PASSKEY) {
-      const encryptedKey = encryptKey(passkey);
-      localStorage.setItem("accessKey", encryptedKey);
+    const result = await verifyAdminPasskey(passkey);
+    if (result.success) {
       setOpen(false);
+      router.push("/admin");
     } else {
-      setError("Invalid passkey. Please try again.");
+      setError(result.error || "Invalid passkey. Please try again.");
     }
   };
 

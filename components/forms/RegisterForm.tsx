@@ -12,7 +12,6 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { SelectItem } from "@/components/ui/select";
 import {
-  Doctors,
   GenderOptions,
   IdentificationTypes,
   PatientFormDefaultValues,
@@ -26,7 +25,7 @@ import CustomFormField, { FormFieldType } from "../CustomFormField";
 import { FileUploader } from "../FileUploader";
 import SubmitButton from "../SubmitButton";
 
-const RegisterForm = ({ user }: { user: User }) => {
+const RegisterForm = ({ user, doctors }: { user: User; doctors: any[] }) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -226,7 +225,7 @@ const RegisterForm = ({ user }: { user: User }) => {
             label="Primary care physician"
             placeholder="Select a physician"
           >
-            {Doctors.map((doctor, i) => (
+            {doctors.map((doctor, i) => (
               <SelectItem key={doctor.name + i} value={doctor.name}>
                 <div className="flex cursor-pointer items-center gap-2">
                   <Image

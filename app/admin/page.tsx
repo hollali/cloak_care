@@ -1,13 +1,20 @@
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { StatCard } from "@/components/StatCard";
 import { columns } from "@/components/table/columns";
 import { DataTable } from "@/components/table/DataTable";
 import { getRecentAppointmentList } from "@/lib/actions/appointment.actions";
+import { checkAdminSession } from "@/lib/actions/admin.actions";
+import { getDoctors } from "@/lib/actions/doctors.actions";
 
 const AdminPage = async () => {
+  const isAdmin = checkAdminSession();
+  if (!isAdmin) redirect("/");
+
   const appointments = await getRecentAppointmentList();
+  const doctors = await getDoctors();
 
   return (
     <div className="mx-auto flex max-w-7xl flex-col space-y-14">

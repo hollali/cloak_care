@@ -3,16 +3,16 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { SelectItem } from "@/components/ui/select";
-import { Doctors } from "@/constants";
 import {
   createAppointment,
   updateAppointment,
 } from "@/lib/actions/appointment.actions";
+import { getDoctors } from "@/lib/actions/doctors.actions";
 import { getAppointmentSchema } from "@/lib/validation";
 
 import "react-datepicker/dist/react-datepicker.css";
@@ -27,15 +27,25 @@ export const AppointmentForm = ({
   type = "create",
   appointment,
   setOpen,
+  doctors = [],
 }: {
   userId: string;
   patientId: string;
   type: "create" | "schedule" | "cancel";
   appointment?: any;
   setOpen?: Dispatch<SetStateAction<boolean>>;
+  doctors?: any[];
 }) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [doctorList, setDoctorList] = useState(doctors);
+
+  useEffect(() => {
+    if (doctorList.length === 0) {
+      getDoctors().then(setDoctorList);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const AppointmentFormValidation = getAppointmentSchema(type);
 
@@ -148,7 +158,7 @@ export const AppointmentForm = ({
               label="Doctor"
               placeholder="Select a doctor"
             >
-              {Doctors.map((doctor, i) => (
+              {doctorList.map((doctor, i) => (
                 <SelectItem key={doctor.name + i} value={doctor.name}>
                   <div className="flex cursor-pointer items-center gap-2">
                     <Image

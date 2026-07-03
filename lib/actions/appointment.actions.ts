@@ -1,18 +1,14 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import twilio from "twilio";
 import sql from "../db.config";
 import { formatDateTime, parseStringify } from "../utils";
+import { sendEmail, appointmentConfirmationEmail, appointmentCancellationEmail } from "../email";
 
 function requireDb() {
   if (!sql) throw new Error("DATABASE_URL not configured");
   return sql;
 }
-
-const twilioClient = process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN
-  ? twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
-  : null;
 
 // CREATE APPOINTMENT
 export const createAppointment = async (appointment: CreateAppointmentParams) => {
@@ -33,9 +29,17 @@ export const createAppointment = async (appointment: CreateAppointmentParams) =>
 };
 
 // GET RECENT APPOINTMENTS
-export const getRecentAppointmentList = async () => {
+export const getRecentAppointmentList = async ({
+  page = 1,
+  limit = 20,
+}: { page?: number; limit?: number } = {}) => {
   try {
     const db = requireDb();
+    const offset = (page - 1) * limit;
+
+    const countResult = await db`SELECT COUNT(*) FROM appointments`;
+    const totalCount = Number(countResult[0].count);
+
     const appointments = await db`
       SELECT a.*, p.name as patient_name, p.email as patient_email, p.phone as patient_phone,
              p.birth_date, p.gender, p.address, p.occupation, p.emergency_contact_name,
@@ -47,6 +51,7 @@ export const getRecentAppointmentList = async () => {
       FROM appointments a
       JOIN patients p ON a.patient_id = p.id
       ORDER BY a.created_at DESC
+      LIMIT ${limit} OFFSET ${offset}
     `;
 
     const mapped = appointments.map((a: any) => ({
@@ -73,32 +78,16 @@ export const getRecentAppointmentList = async () => {
     const cancelledCount = mapped.filter((a: any) => a.status === "cancelled").length;
 
     return parseStringify({
-      totalCount: mapped.length,
+      totalCount,
       scheduledCount,
       pendingCount,
       cancelledCount,
       documents: mapped,
+      totalPages: Math.ceil(totalCount / limit),
+      currentPage: page,
     });
   } catch (error) {
     console.error("An error occurred while retrieving appointments:", error);
-  }
-};
-
-// SEND SMS NOTIFICATION
-export const sendSMSNotification = async (phone: string, content: string) => {
-  try {
-    if (!twilioClient) {
-      console.warn("Twilio not configured - SMS not sent");
-      return;
-    }
-    const message = await twilioClient.messages.create({
-      body: content,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      to: phone,
-    });
-    return parseStringify(message);
-  } catch (error) {
-    console.error("An error occurred while sending SMS:", error);
   }
 };
 
@@ -106,7 +95,6 @@ export const sendSMSNotification = async (phone: string, content: string) => {
 export const updateAppointment = async ({
   appointmentId,
   userId,
-  timeZone,
   appointment,
   type,
 }: UpdateAppointmentParams) => {
@@ -127,14 +115,27 @@ export const updateAppointment = async ({
     const updated = result[0];
 
     const patientResult = await db`
-      SELECT phone FROM patients WHERE id = ${updated.patient_id}
+      SELECT name, email FROM patients WHERE id = ${updated.patient_id}
     `;
 
-    if (patientResult.length > 0 && patientResult[0].phone) {
-      const smsMessage = type === "schedule"
-        ? `Your appointment is confirmed for ${formatDateTime(updated.schedule!).dateTime} with Dr. ${updated.primary_physician}`
-        : `Your appointment for ${formatDateTime(updated.schedule!).dateTime} is cancelled. Reason: ${updated.cancellation_reason}`;
-      await sendSMSNotification(patientResult[0].phone, smsMessage);
+    if (patientResult.length > 0 && patientResult[0].email) {
+      const dateTime = formatDateTime(updated.schedule!).dateTime;
+      if (type === "schedule") {
+        const emailContent = appointmentConfirmationEmail({
+          patientName: patientResult[0].name,
+          doctorName: updated.primary_physician,
+          dateTime,
+        });
+        await sendEmail({ to: patientResult[0].email, ...emailContent });
+      } else {
+        const emailContent = appointmentCancellationEmail({
+          patientName: patientResult[0].name,
+          doctorName: updated.primary_physician,
+          dateTime,
+          reason: updated.cancellation_reason,
+        });
+        await sendEmail({ to: patientResult[0].email, ...emailContent });
+      }
     }
 
     revalidatePath("/admin");
@@ -171,5 +172,36 @@ export const getAppointment = async (appointmentId: string) => {
     });
   } catch (error) {
     console.error("An error occurred while retrieving the appointment:", error);
+  }
+};
+
+// GET PATIENT APPOINTMENTS
+export const getPatientAppointments = async (userId: string) => {
+  try {
+    const db = requireDb();
+    const result = await db`
+      SELECT a.*, p.name as patient_name, p.email as patient_email
+      FROM appointments a
+      JOIN patients p ON a.patient_id = p.id
+      WHERE a.user_id = ${userId}
+      ORDER BY a.created_at DESC
+    `;
+    const mapped = result.map((a: any) => ({
+      $id: a.id,
+      id: a.id,
+      patientId: a.patient_id,
+      userId: a.user_id,
+      primaryPhysician: a.primary_physician,
+      reason: a.reason,
+      schedule: a.schedule,
+      status: a.status,
+      note: a.note,
+      cancellationReason: a.cancellation_reason,
+      patient: { name: a.patient_name, email: a.patient_email },
+    }));
+    return parseStringify(mapped);
+  } catch (error) {
+    console.error("An error occurred while retrieving patient appointments:", error);
+    return [];
   }
 };

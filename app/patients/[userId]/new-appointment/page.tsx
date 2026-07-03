@@ -1,10 +1,22 @@
 import Image from "next/image";
+import { redirect } from "next/navigation";
 
 import { AppointmentForm } from "@/components/forms/AppointmentForm";
-import { getPatient } from "@/lib/actions/patient.actions";
+import { getPatient, getSession } from "@/lib/actions/patient.actions";
+import { getDoctors } from "@/lib/actions/doctors.actions";
+import { getSessionToken } from "@/lib/session";
 
 const Appointment = async ({ params: { userId } }: SearchParamProps) => {
+  const sessionToken = getSessionToken();
+  if (!sessionToken) redirect("/");
+
+  const session = await getSession(sessionToken);
+  if (!session) redirect("/");
+
   const patient = await getPatient(userId);
+  if (!patient) redirect(`/patients/${userId}/register`);
+
+  const doctors = await getDoctors();
 
   return (
     <div className="flex h-screen max-h-screen">
@@ -22,6 +34,7 @@ const Appointment = async ({ params: { userId } }: SearchParamProps) => {
             patientId={patient?.$id}
             userId={userId}
             type="create"
+            doctors={doctors}
           />
 
           <p className="copyright mt-10 py-12">© {new Date().getFullYear()} Cloak Care</p>

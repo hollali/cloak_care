@@ -6,8 +6,17 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 import { Form } from "@/components/ui/form";
-import { createUser } from "@/lib/actions/patient.actions";
+import {
+  createUser,
+  sendOTP,
+  verifyOTP,
+} from "@/lib/actions/patient.actions";
 import { UserFormValidation } from "@/lib/validation";
 
 import "react-phone-number-input/style.css";
@@ -17,6 +26,11 @@ import SubmitButton from "../SubmitButton";
 export const PatientForm = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [step, setStep] = useState<"form" | "otp">("form");
+  const [otp, setOtp] = useState("");
+  const [otpError, setOtpError] = useState("");
+  const [userId, setUserId] = useState("");
+  const [userEmail, setUserEmail] = useState("");
 
   const form = useForm<z.infer<typeof UserFormValidation>>({
     resolver: zodResolver(UserFormValidation),
@@ -29,7 +43,6 @@ export const PatientForm = () => {
 
   const onSubmit = async (values: z.infer<typeof UserFormValidation>) => {
     setIsLoading(true);
-
     try {
       const user = {
         name: values.name,
@@ -38,16 +51,73 @@ export const PatientForm = () => {
       };
 
       const newUser = await createUser(user);
-
       if (newUser) {
-        router.push(`/patients/${newUser.$id}/register`);
+        setUserId(newUser.$id);
+        setUserEmail(values.email);
+        await sendOTP(values.email);
+        setStep("otp");
       }
     } catch (error) {
       console.log(error);
     }
+    setIsLoading(false);
+  };
+
+  const handleVerifyOTP = async () => {
+    setIsLoading(true);
+    setOtpError("");
+
+    const result = await verifyOTP(userEmail, otp);
+    if (result.success) {
+      router.push(`/patients/${userId}/register`);
+    } else {
+      setOtpError(result.error || "Verification failed");
+    }
 
     setIsLoading(false);
   };
+
+  if (step === "otp") {
+    return (
+      <div className="flex-1 space-y-6">
+        <section className="mb-12 space-y-4">
+          <h1 className="header">Check your email</h1>
+          <p className="text-dark-700">
+            We sent a 6-digit code to <strong>{userEmail}</strong>
+          </p>
+        </section>
+
+        <div className="flex flex-col items-center gap-4">
+          <InputOTP
+            maxLength={6}
+            value={otp}
+            onChange={(value) => setOtp(value)}
+          >
+            <InputOTPGroup className="shad-otp">
+              <InputOTPSlot className="shad-otp-slot" index={0} />
+              <InputOTPSlot className="shad-otp-slot" index={1} />
+              <InputOTPSlot className="shad-otp-slot" index={2} />
+              <InputOTPSlot className="shad-otp-slot" index={3} />
+              <InputOTPSlot className="shad-otp-slot" index={4} />
+              <InputOTPSlot className="shad-otp-slot" index={5} />
+            </InputOTPGroup>
+          </InputOTP>
+
+          {otpError && (
+            <p className="shad-error text-14-regular">{otpError}</p>
+          )}
+
+          <button
+            onClick={handleVerifyOTP}
+            disabled={isLoading || otp.length !== 6}
+            className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 shad-primary-btn w-full"
+          >
+            {isLoading ? "Verifying..." : "Verify"}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Form {...form}>
