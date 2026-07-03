@@ -17,7 +17,7 @@ export async function sendEmail({ to, subject, html }: EmailPayload) {
   }
   try {
     const result = await resend.emails.send({
-      from: process.env.EMAIL_FROM || "noreply@cloakcare.com",
+      from: process.env.EMAIL_FROM || "onboarding@resend.dev",
       to,
       subject,
       html,
