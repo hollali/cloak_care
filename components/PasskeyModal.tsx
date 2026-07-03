@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import {
@@ -23,9 +23,12 @@ import { decryptKey, encryptKey } from "@/lib/utils";
 export const PasskeyModal = () => {
   const router = useRouter();
   const path = usePathname();
+  const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
   const [passkey, setPasskey] = useState("");
   const [error, setError] = useState("");
+
+  const isAdmin = searchParams?.get("admin") === "true";
 
   const encryptedKey =
     typeof window !== "undefined"
@@ -33,6 +36,11 @@ export const PasskeyModal = () => {
       : null;
 
   useEffect(() => {
+    if (!isAdmin) {
+      setOpen(false);
+      return;
+    }
+
     const accessKey = encryptedKey && decryptKey(encryptedKey);
     const adminPasskey = process.env.NEXT_PUBLIC_ADMIN_PASSKEY;
 
@@ -43,7 +51,7 @@ export const PasskeyModal = () => {
       } else {
         setOpen(true);
       }
-  }, [encryptedKey]);
+  }, [encryptedKey, isAdmin, path, router]);
 
   const closeModal = () => {
     setOpen(false);
