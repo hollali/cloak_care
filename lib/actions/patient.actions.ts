@@ -166,12 +166,17 @@ export const sendOTP = async (email: string) => {
     `;
 
     const emailContent = otpEmail({ code });
-    await sendEmail({ to: email, ...emailContent });
+    const result = await sendEmail({ to: email, ...emailContent });
+
+    if (!result) {
+      console.error("Failed to send OTP: sendEmail returned null");
+      return { success: false, error: "Failed to send verification code. Check your email address or try again later." };
+    }
 
     return { success: true };
   } catch (error) {
     console.error("Failed to send OTP:", error);
-    return { success: false };
+    return { success: false, error: "Something went wrong. Please try again." };
   }
 };
 

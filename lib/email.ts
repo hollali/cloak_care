@@ -1,7 +1,15 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
-const resend = process.env.RESEND_API_KEY
-  ? new Resend(process.env.RESEND_API_KEY)
+const transporter = process.env.SMTP_HOST
+  ? nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT) || 587,
+      secure: process.env.SMTP_SECURE === "true",
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    })
   : null;
 
 type EmailPayload = {
@@ -11,13 +19,13 @@ type EmailPayload = {
 };
 
 export async function sendEmail({ to, subject, html }: EmailPayload) {
-  if (!resend) {
-    console.warn("RESEND_API_KEY not configured — email not sent");
+  if (!transporter) {
+    console.warn("SMTP not configured — email not sent");
     return null;
   }
   try {
-    const result = await resend.emails.send({
-      from: process.env.EMAIL_FROM || "onboarding@resend.dev",
+    const result = await transporter.sendMail({
+      from: process.env.EMAIL_FROM,
       to,
       subject,
       html,

@@ -29,6 +29,7 @@ export const PatientForm = () => {
   const [step, setStep] = useState<"form" | "otp">("form");
   const [otp, setOtp] = useState("");
   const [otpError, setOtpError] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [userId, setUserId] = useState("");
   const [userEmail, setUserEmail] = useState("");
 
@@ -54,7 +55,12 @@ export const PatientForm = () => {
       if (newUser) {
         setUserId(newUser.$id);
         setUserEmail(values.email);
-        await sendOTP(values.email);
+        setEmailError("");
+        const otpResult = await sendOTP(values.email);
+        if (!otpResult.success) {
+          setEmailError(otpResult.error || "Failed to send verification code");
+          return;
+        }
         setStep("otp");
       }
     } catch (error) {
@@ -155,6 +161,9 @@ export const PatientForm = () => {
           placeholder="(555) 123-4567"
         />
 
+        {emailError && (
+          <p className="shad-error text-14-regular">{emailError}</p>
+        )}
         <SubmitButton isLoading={isLoading}>Get Started</SubmitButton>
       </form>
     </Form>
