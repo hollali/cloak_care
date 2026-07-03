@@ -28,3 +28,9 @@ export const checkAdminSession = () => {
   const cookieStore = cookies();
   return cookieStore.get("admin_session")?.value === "true";
 };
+
+export const logoutAdmin = async () => {
+  const cookieStore = cookies();
+  cookieStore.delete("admin_session");
+  return { success: true };
+};

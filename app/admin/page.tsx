@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { StatCard } from "@/components/StatCard";
 import { columns } from "@/components/table/columns";
 import { DataTable } from "@/components/table/DataTable";
+import { LogoutButton } from "@/components/LogoutButton";
 import { getRecentAppointmentList } from "@/lib/actions/appointment.actions";
 import { checkAdminSession } from "@/lib/actions/admin.actions";
 import { getDoctors } from "@/lib/actions/doctors.actions";
@@ -30,6 +31,7 @@ const AdminPage = async () => {
         </Link>
 
         <p className="text-16-semibold">Admin Dashboard</p>
+        <LogoutButton />
       </header>
 
       <main className="admin-main">
