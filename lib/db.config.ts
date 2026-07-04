@@ -79,6 +79,14 @@ export async function initDB() {
     )
   `;
   await sql`
+    CREATE TABLE IF NOT EXISTS registration_drafts (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL REFERENCES users(id),
+      data JSONB NOT NULL,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `;
+  await sql`
     CREATE TABLE IF NOT EXISTS doctors (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,

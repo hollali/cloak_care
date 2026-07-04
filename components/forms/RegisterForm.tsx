@@ -3,8 +3,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { Form, FormControl } from "@/components/ui/form";
@@ -24,10 +25,13 @@ import "react-phone-number-input/style.css";
 import CustomFormField, { FormFieldType } from "../CustomFormField";
 import { FileUploader } from "../FileUploader";
 import SubmitButton from "../SubmitButton";
+import { useFormDraft } from "@/hooks/useFormDraft";
+import { identificationDocumentStorage, DraftFileMeta } from "@/lib/draftStorage";
 
 const RegisterForm = ({ user, doctors }: { user: User; doctors: any[] }) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [restoredFile, setRestoredFile] = useState<DraftFileMeta | null>(null);
 
   const form = useForm<z.infer<typeof PatientFormValidation>>({
     resolver: zodResolver(PatientFormValidation),
@@ -38,6 +42,27 @@ const RegisterForm = ({ user, doctors }: { user: User; doctors: any[] }) => {
       phone: user.phone,
     },
   });
+
+  const { clearDraft } = useFormDraft("register_form", form, {
+    userId: user.id,
+    excludeFields: ["identificationDocument"],
+  });
+
+  // Restore file metadata + file from previous draft
+  useEffect(() => {
+    (async () => {
+      const meta = await identificationDocumentStorage.get();
+      if (meta) {
+        setRestoredFile(meta);
+        // Try to restore the actual file into the form
+        const file = await identificationDocumentStorage.getFile();
+        if (file) {
+          form.setValue("identificationDocument", [file] as any);
+        }
+        toast.info("Draft restored from your previous session");
+      }
+    })();
+  }, [form]);
 
   const onSubmit = async (values: z.infer<typeof PatientFormValidation>) => {
     setIsLoading(true);
@@ -88,6 +113,9 @@ const RegisterForm = ({ user, doctors }: { user: User; doctors: any[] }) => {
       const newPatient = await registerPatient(patient);
 
       if (newPatient) {
+        await clearDraft();
+        await identificationDocumentStorage.clear();
+        toast.success("Registration complete!");
         router.push(`/patients/${user.id}/new-appointment`);
       }
     } catch (error) {
@@ -330,7 +358,11 @@ const RegisterForm = ({ user, doctors }: { user: User; doctors: any[] }) => {
             label="Scanned Copy of Identification Document"
             renderSkeleton={(field) => (
               <FormControl>
-                <FileUploader files={field.value} onChange={field.onChange} />
+                <FileUploader
+                  files={field.value}
+                  onChange={field.onChange}
+                  restoredFileName={restoredFile?.name}
+                />
               </FormControl>
             )}
           />

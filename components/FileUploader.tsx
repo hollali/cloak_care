@@ -5,16 +5,21 @@ import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 
 import { convertFileToUrl } from "@/lib/utils";
+import { identificationDocumentStorage } from "@/lib/draftStorage";
 
 type FileUploaderProps = {
   files: File[] | undefined;
   onChange: (files: File[]) => void;
+  restoredFileName?: string | null;
 };
 
-export const FileUploader = ({ files, onChange }: FileUploaderProps) => {
-  const onDrop = useCallback((acceptedFiles: File[]) => {
+export const FileUploader = ({ files, onChange, restoredFileName }: FileUploaderProps) => {
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
     onChange(acceptedFiles);
-  }, []);
+    if (acceptedFiles[0]) {
+      await identificationDocumentStorage.save(acceptedFiles[0]);
+    }
+  }, [onChange]);
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
@@ -29,6 +34,21 @@ export const FileUploader = ({ files, onChange }: FileUploaderProps) => {
           alt="uploaded image"
           className="max-h-[400px] overflow-hidden object-cover"
         />
+      ) : restoredFileName ? (
+        <div className="file-upload_label">
+          <Image
+            src="/assets/icons/upload.svg"
+            width={40}
+            height={40}
+            alt="upload"
+          />
+          <p className="text-14-regular text-green-500">
+            {restoredFileName}
+          </p>
+          <p className="text-12-regular">
+            File saved from previous session — click to replace
+          </p>
+        </div>
       ) : (
         <>
           <Image
