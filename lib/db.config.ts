@@ -61,6 +61,9 @@ export async function initDB() {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `;
+  await sql`CREATE INDEX IF NOT EXISTS idx_appointments_patient_id ON appointments(patient_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_appointments_created_at ON appointments(created_at DESC)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_appointments_status ON appointments(status)`;
   await sql`
     CREATE TABLE IF NOT EXISTS verification_codes (
       id SERIAL PRIMARY KEY,
