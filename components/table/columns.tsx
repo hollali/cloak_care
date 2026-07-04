@@ -73,6 +73,20 @@ export const columns: ColumnDef<any>[] = [
     },
   },
   {
+    id: "reason",
+    header: "Reason",
+    cell: ({ row }) => {
+      const appointment = row.original;
+      return (
+        <p className="text-14-regular max-w-[200px] truncate" title={appointment.cancellationReason || appointment.reason}>
+          {appointment.status === "cancelled"
+            ? appointment.cancellationReason || "—"
+            : appointment.reason || "—"}
+        </p>
+      );
+    },
+  },
+  {
     id: "actions",
     header: () => <div className="pl-4">Actions</div>,
     cell: ({ row }) => {

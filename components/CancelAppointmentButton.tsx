@@ -29,6 +29,7 @@ export function CancelAppointmentButton({
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [reason, setReason] = useState("");
 
   const handleCancel = async () => {
     setIsLoading(true);
@@ -37,7 +38,7 @@ export function CancelAppointmentButton({
       userId,
       appointment: {
         status: "cancelled",
-        cancellationReason: "Cancelled by patient",
+        cancellationReason: reason.trim() || "No reason provided",
       },
       type: "cancel",
     });
@@ -67,6 +68,18 @@ export function CancelAppointmentButton({
             cancelled and the provider will be notified.
           </AlertDialogDescription>
         </AlertDialogHeader>
+        <div className="px-6">
+          <label className="text-14-medium text-dark-700 block mb-2">
+            Reason for cancellation
+          </label>
+          <textarea
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            placeholder="Tell us why you're cancelling..."
+            className="w-full rounded-md border border-dark-500 bg-dark-400 px-3 py-2 text-sm text-white placeholder:text-dark-600 focus:outline-none focus:ring-1 focus:ring-green-500 min-h-[80px] resize-none"
+            disabled={isLoading}
+          />
+        </div>
         <AlertDialogFooter>
           <AlertDialogCancel className="shad-gray-btn" disabled={isLoading}>
             Keep Appointment
