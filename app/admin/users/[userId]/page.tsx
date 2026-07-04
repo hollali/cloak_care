@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { StatusBadge } from "@/components/StatusBadge";
+import { DeleteUserButton } from "@/components/DeleteUserButton";
 import { getUserWithDetails } from "@/lib/actions/admin.actions";
 import { formatDateTime } from "@/lib/utils";
 import { getDoctors } from "@/lib/actions/doctors.actions";
@@ -31,13 +32,16 @@ const UserDetailPage = async ({
   return (
     <>
       <section className="w-full space-y-4">
-        <Link
-          href="/admin/users"
-          className="text-14-medium text-dark-600 hover:text-white inline-flex items-center gap-2"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-          Back to Users
-        </Link>
+        <div className="flex items-center justify-between">
+          <Link
+            href="/admin/users"
+            className="text-14-medium text-dark-600 hover:text-white inline-flex items-center gap-2"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            Back to Users
+          </Link>
+          <DeleteUserButton userId={userId} />
+        </div>
         <h1 className="header">{user.name}</h1>
       </section>
 

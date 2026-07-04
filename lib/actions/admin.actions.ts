@@ -42,6 +42,21 @@ export const logoutAdmin = async () => {
   return { success: true };
 };
 
+export const deleteUser = async (userId: string) => {
+  try {
+    const db = requireDb();
+    await db`DELETE FROM appointments WHERE user_id = ${userId}`;
+    await db`DELETE FROM patients WHERE user_id = ${userId}`;
+    await db`DELETE FROM sessions WHERE email = (SELECT email FROM users WHERE id = ${userId})`;
+    await db`DELETE FROM verification_codes WHERE email = (SELECT email FROM users WHERE id = ${userId})`;
+    await db`DELETE FROM users WHERE id = ${userId}`;
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to delete user:", error);
+    return { success: false, error: "Failed to delete user" };
+  }
+};
+
 export const getAllUsers = async () => {
   try {
     const db = requireDb();
