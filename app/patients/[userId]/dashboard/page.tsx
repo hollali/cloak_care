@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
+import { CancelAppointmentButton } from "@/components/CancelAppointmentButton";
 import { getPatient, getSession } from "@/lib/actions/patient.actions";
 import { getPatientAppointments } from "@/lib/actions/appointment.actions";
 import { getDoctors } from "@/lib/actions/doctors.actions";
@@ -121,6 +122,10 @@ const Dashboard = async ({ params: { userId } }: SearchParamProps) => {
                 </p>
                 <p className="text-sm text-dark-600">{upcoming.reason}</p>
               </div>
+              <CancelAppointmentButton
+                appointmentId={upcoming.$id}
+                userId={userId}
+              />
             </div>
           </section>
         )}
@@ -197,19 +202,11 @@ const Dashboard = async ({ params: { userId } }: SearchParamProps) => {
                     </div>
                     <div className="flex items-center gap-4">
                       <StatusBadge status={apt.status} />
-                      {apt.status === "pending" && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="shad-danger-btn"
-                          asChild
-                        >
-                          <Link
-                            href={`/patients/${userId}/new-appointment/success?appointmentId=${apt.$id}`}
-                          >
-                            Cancel
-                          </Link>
-                        </Button>
+                      {apt.status !== "cancelled" && (
+                        <CancelAppointmentButton
+                          appointmentId={apt.$id}
+                          userId={userId}
+                        />
                       )}
                     </div>
                   </div>
